@@ -1,106 +1,668 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ledgerly — Personal Finance Tracker</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Ledgerly</title>
+  <meta name="theme-color" content="#0f172a"/>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#0f1b33; --card2:#111f3b; --text:#eaf0ff; --muted:#9fb0d0;
+      --line:rgba(255,255,255,.08); --accent:#4f46e5; --good:#16a34a; --bad:#ef4444; --warn:#f59e0b;
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:linear-gradient(180deg,#070b14, #0b1220 40%, #070b14); color:var(--text);}
+    .app{max-width:980px;margin:0 auto;padding:14px 12px 90px;}
+    .topbar{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 4px 14px;}
+    .brand{display:flex;align-items:center;gap:10px}
+    .logo{width:38px;height:38px;border-radius:12px;background:radial-gradient(circle at 30% 30%, #7c3aed, #1d4ed8 55%, #0f172a); box-shadow:0 10px 30px rgba(79,70,229,.35)}
+    .title{line-height:1}
+    .title b{display:block;font-size:16px}
+    .title span{font-size:12px;color:var(--muted)}
+    .pill{border:1px solid var(--line); background:rgba(255,255,255,.04); padding:8px 10px;border-radius:999px; font-size:12px;color:var(--muted);}
+    .grid{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:860px){.grid{grid-template-columns:1.2fr .8fr}}
+    .card{background:linear-gradient(180deg,var(--card), rgba(255,255,255,.02)); border:1px solid var(--line); border-radius:var(--radius); padding:12px; box-shadow:0 10px 40px rgba(0,0,0,.35)}
+    .card h3{margin:0 0 10px;font-size:14px;color:#dbe6ff}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .stat{flex:1;min-width:140px;background:linear-gradient(180deg,var(--card2), rgba(255,255,255,.02)); border:1px solid var(--line); border-radius:16px;padding:12px}
+    .stat small{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}
+    .stat b{font-size:18px}
+    .good{color:#b7f7c8}
+    .bad{color:#ffd0d0}
+    .inputs{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .inputs.one{grid-template-columns:1fr}
+    label{display:block;font-size:11px;color:var(--muted);margin:2px 0 6px}
+    input,select,textarea{
+      width:100%; padding:10px 11px; border-radius:14px; border:1px solid var(--line);
+      background:rgba(255,255,255,.03); color:var(--text); outline:none;
+    }
+    textarea{min-height:84px;resize:vertical}
+    button{
+      border:0; border-radius:14px; padding:11px 12px; font-weight:600;
+      background:linear-gradient(180deg, rgba(79,70,229,.95), rgba(67,56,202,.95));
+      color:white; cursor:pointer;
+    }
+    button.secondary{background:rgba(255,255,255,.06); border:1px solid var(--line); color:var(--text)}
+    button.danger{background:rgba(239,68,68,.12); border:1px solid rgba(239,68,68,.35); color:#ffd0d0}
+    .btnrow{display:flex;gap:10px;flex-wrap:wrap}
+    .muted{color:var(--muted);font-size:12px}
+    .list{display:flex;flex-direction:column;gap:10px}
+    .item{display:flex;justify-content:space-between;gap:10px; padding:10px 12px;border-radius:16px;border:1px solid var(--line);
+      background:rgba(255,255,255,.03)}
+    .item .left{display:flex;flex-direction:column;gap:3px}
+    .tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+    .dot{width:8px;height:8px;border-radius:99px;background:var(--accent);display:inline-block}
+    .dot.good{background:var(--good)} .dot.bad{background:var(--bad)} .dot.warn{background:var(--warn)}
+    .amount{font-weight:800}
+    .amount.good{color:#b7f7c8} .amount.bad{color:#ffd0d0}
+    .nav{
+      position:fixed; left:0; right:0; bottom:0; padding:10px;
+      background:linear-gradient(180deg, rgba(10,16,30,0), rgba(10,16,30,.92) 25%, rgba(10,16,30,.98));
+      backdrop-filter: blur(10px);
+    }
+    .tabs{max-width:980px;margin:0 auto; display:grid; grid-template-columns:repeat(3,1fr); gap:10px}
+    .tab{padding:12px 10px; border-radius:16px; border:1px solid var(--line); background:rgba(255,255,255,.04);
+      display:flex;align-items:center;justify-content:center;font-weight:700; font-size:13px; color:var(--muted); cursor:pointer}
+    .tab.active{color:white; background:rgba(79,70,229,.18); border-color:rgba(79,70,229,.35)}
+    canvas{width:100%;height:260px;background:rgba(255,255,255,.02); border:1px solid var(--line); border-radius:16px}
+    .toast{position:fixed; top:14px; left:50%; transform:translateX(-50%); background:rgba(15,27,51,.95);
+      border:1px solid var(--line); padding:10px 12px; border-radius:14px; color:var(--text); font-size:13px; display:none; z-index:99}
+    .split{display:flex;align-items:center;justify-content:space-between;gap:10px}
+  </style>
 </head>
 <body>
-  <div class="app-shell">
-    <aside class="sidebar">
-      <h1>Ledgerly</h1>
-      <nav>
-        <a class="active" href="#">Dashboard</a>
-        <a href="#">Transactions</a>
-        <a href="#">Budgets</a>
-        <a href="#">Goals</a>
-        <a href="#">Reports</a>
-        <a href="#">Settings</a>
-      </nav>
-      <button class="cta">+ Add transaction</button>
-    </aside>
+  <div class="toast" id="toast"></div>
 
-    <main class="content">
-      <header class="topbar">
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <div class="logo"></div>
+        <div class="title">
+          <b>Ledgerly</b>
+          <span>Connected finance app</span>
+        </div>
+      </div>
+      <div class="pill" id="syncState">Not connected</div>
+    </div>
+
+    <!-- SETTINGS -->
+    <section class="card" id="view-settings" style="display:none">
+      <h3>Connection</h3>
+      <div class="inputs one">
         <div>
-          <p class="eyebrow">Good afternoon</p>
-          <h2>Your Financial Snapshot</h2>
+          <label>Apps Script Web App URL</label>
+          <input id="apiUrl" placeholder="https://script.google.com/macros/s/.../exec">
         </div>
-        <div class="profile-pill">April 2026 ▾</div>
-      </header>
-
-      <section class="card-grid">
-        <article class="metric-card">
-          <p>Total Balance</p>
-          <h3>$28,450</h3>
-          <span class="up">+4.2% from last month</span>
-        </article>
-        <article class="metric-card">
-          <p>Monthly Income</p>
-          <h3>$7,900</h3>
-          <span class="up">+1.1%</span>
-        </article>
-        <article class="metric-card">
-          <p>Monthly Expenses</p>
-          <h3>$4,260</h3>
-          <span class="down">+6.8%</span>
-        </article>
-        <article class="metric-card">
-          <p>Savings Rate</p>
-          <h3>46%</h3>
-          <span class="up">On track</span>
-        </article>
-      </section>
-
-      <section class="panel-grid">
-        <article class="panel chart-panel">
-          <div class="panel-head">
-            <h4>Cash Flow</h4>
-            <a href="#">View details</a>
-          </div>
-          <div class="fake-chart" aria-hidden="true"></div>
-        </article>
-
-        <article class="panel budget-panel">
-          <div class="panel-head">
-            <h4>Budget Progress</h4>
-          </div>
-          <ul>
-            <li><span>Housing</span><progress value="72" max="100"></progress><strong>$1,440 / $2,000</strong></li>
-            <li><span>Food</span><progress value="58" max="100"></progress><strong>$580 / $1,000</strong></li>
-            <li><span>Transport</span><progress value="34" max="100"></progress><strong>$170 / $500</strong></li>
-            <li><span>Entertainment</span><progress value="81" max="100"></progress><strong>$405 / $500</strong></li>
-          </ul>
-        </article>
-      </section>
-
-      <section class="panel transactions-panel">
-        <div class="panel-head">
-          <h4>Recent Transactions</h4>
-          <a href="#">See all</a>
+        <div>
+          <label>API Key (secret)</label>
+          <input id="apiKey" placeholder="Your secret key">
         </div>
-        <table>
-          <thead>
-            <tr>
-              <th>Merchant</th>
-              <th>Category</th>
-              <th>Date</th>
-              <th>Amount</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>Whole Foods</td><td>Groceries</td><td>Apr 22</td><td class="negative">-$84.20</td></tr>
-            <tr><td>Payroll</td><td>Income</td><td>Apr 20</td><td class="positive">+$3,950.00</td></tr>
-            <tr><td>Spotify</td><td>Subscriptions</td><td>Apr 19</td><td class="negative">-$12.99</td></tr>
-            <tr><td>Shell</td><td>Transport</td><td>Apr 18</td><td class="negative">-$46.70</td></tr>
-          </tbody>
-        </table>
-      </section>
-    </main>
+      </div>
+      <div style="height:10px"></div>
+      <div class="btnrow">
+        <button id="btnSaveConn">Save</button>
+        <button class="secondary" id="btnTest">Test connection</button>
+        <button class="secondary" id="btnSync">Sync now</button>
+        <button class="danger" id="btnClearLocal">Clear local cache</button>
+      </div>
+      <p class="muted" style="margin:10px 2px 0">
+        Tip: This app works offline. New entries are queued and auto-sent when online.
+      </p>
+    </section>
+
+    <!-- DASHBOARD -->
+    <section class="grid" id="view-dashboard">
+      <div class="card">
+        <div class="split">
+          <h3 style="margin:0">Dashboard</h3>
+          <select id="monthPick" style="max-width:180px"></select>
+        </div>
+        <div style="height:10px"></div>
+        <div class="row">
+          <div class="stat">
+            <small>Income</small>
+            <b class="good" id="statIncome">0</b>
+          </div>
+          <div class="stat">
+            <small>Expense</small>
+            <b class="bad" id="statExpense">0</b>
+          </div>
+          <div class="stat">
+            <small>Net</small>
+            <b id="statNet">0</b>
+          </div>
+        </div>
+        <div style="height:12px"></div>
+        <h3>Monthly chart</h3>
+        <canvas id="chart"></canvas>
+        <p class="muted" id="chartHint" style="margin:8px 2px 0">Income vs Expense for selected month</p>
+      </div>
+
+      <div class="card">
+        <h3>Recent transactions</h3>
+        <div class="btnrow" style="margin-bottom:10px">
+          <button class="secondary" id="btnQuickSync">Sync</button>
+          <button class="secondary" id="btnOffline">Offline queue: <span id="qCount">0</span></button>
+        </div>
+        <div class="list" id="recentList"></div>
+        <p class="muted" style="margin:10px 2px 0">Shows latest items from local cache (sync for newest).</p>
+      </div>
+    </section>
+
+    <!-- ADD -->
+    <section class="card" id="view-add" style="display:none">
+      <h3>Add entry</h3>
+      <div class="inputs">
+        <div>
+          <label>Type</label>
+          <select id="fType">
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+            <option value="lend">Lend</option>
+            <option value="loan">Loan</option>
+            <option value="work_spend">Spend on work</option>
+          </select>
+        </div>
+        <div>
+          <label>Date</label>
+          <input id="fDate" type="date">
+        </div>
+        <div>
+          <label>Person</label>
+          <input id="fPerson" placeholder="e.g. anis">
+        </div>
+        <div>
+          <label>Category</label>
+          <select id="fCat">
+            <option>Salary</option>
+            <option>Food</option>
+            <option>Transport</option>
+            <option>Phone</option>
+            <option>Cloth</option>
+            <option>Others</option>
+          </select>
+        </div>
+        <div>
+          <label>Amount</label>
+          <input id="fAmt" type="number" inputmode="decimal" placeholder="0.00">
+        </div>
+        <div>
+          <label>Note</label>
+          <input id="fNote" placeholder="optional">
+        </div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="btnrow">
+        <button id="btnAdd">Save</button>
+        <button class="secondary" id="btnAddClear">Clear</button>
+      </div>
+      <p class="muted" style="margin:10px 2px 0">If offline, it saves locally and syncs later.</p>
+    </section>
+
+    <!-- TRANSACTIONS -->
+    <section class="card" id="view-list" style="display:none">
+      <h3>Transactions</h3>
+      <div class="inputs">
+        <div>
+          <label>From</label><input id="fltFrom" type="date">
+        </div>
+        <div>
+          <label>To</label><input id="fltTo" type="date">
+        </div>
+        <div>
+          <label>Type</label>
+          <select id="fltType">
+            <option value="">All</option>
+            <option value="income">Income</option>
+            <option value="expense">Expense</option>
+            <option value="lend">Lend</option>
+            <option value="loan">Loan</option>
+            <option value="work_spend">Spend on work</option>
+          </select>
+        </div>
+        <div>
+          <label>Category</label>
+          <select id="fltCat">
+            <option value="">All</option>
+            <option>Salary</option><option>Food</option><option>Transport</option><option>Phone</option><option>Cloth</option><option>Others</option>
+          </select>
+        </div>
+      </div>
+      <div style="height:10px"></div>
+      <div class="btnrow">
+        <button class="secondary" id="btnApply">Apply</button>
+        <button class="secondary" id="btnExport">Export CSV</button>
+      </div>
+      <div style="height:12px"></div>
+      <div class="list" id="fullList"></div>
+    </section>
   </div>
+
+  <div class="nav">
+    <div class="tabs">
+      <div class="tab active" data-tab="dashboard">Dashboard</div>
+      <div class="tab" data-tab="add">Add</div>
+      <div class="tab" data-tab="settings">Settings</div>
+    </div>
+  </div>
+
+<script>
+/* ---------------- STORAGE ---------------- */
+const LS = {
+  conn: 'ledgerly_conn_v1',
+  cache: 'ledgerly_cache_v1',
+  queue: 'ledgerly_queue_v1',
+};
+
+function loadConn(){ return JSON.parse(localStorage.getItem(LS.conn) || '{}'); }
+function saveConn(c){ localStorage.setItem(LS.conn, JSON.stringify(c)); }
+function loadCache(){ return JSON.parse(localStorage.getItem(LS.cache) || '[]'); }
+function saveCache(rows){ localStorage.setItem(LS.cache, JSON.stringify(rows)); }
+function loadQueue(){ return JSON.parse(localStorage.getItem(LS.queue) || '[]'); }
+function saveQueue(q){ localStorage.setItem(LS.queue, JSON.stringify(q)); }
+
+/* ---------------- UI HELPERS ---------------- */
+const $ = (id)=>document.getElementById(id);
+function money(n){
+  const x = Number(n||0);
+  return x.toLocaleString(undefined,{minimumFractionDigits:2, maximumFractionDigits:2});
+}
+function toast(msg){
+  const t = $('toast');
+  t.textContent = msg;
+  t.style.display = 'block';
+  clearTimeout(window.__toastT);
+  window.__toastT = setTimeout(()=>t.style.display='none', 2200);
+}
+function setSyncState(text){ $('syncState').textContent = text; }
+
+/* ---------------- DATA MODEL ----------------
+DB_Transactions headers:
+id | type | date | person | category | amount | note | createdAt
+We store local cache as objects:
+{ id,type,date,person,category,amount,note,createdAt }
+*/
+function normalizeFromSheet(values){
+  if(!values || values.length < 2) return [];
+  const rows = [];
+  for(let i=1;i<values.length;i++){
+    const r = values[i];
+    if(!r || r.length===0) continue;
+    rows.push({
+      id: r[0] || '',
+      type: r[1] || '',
+      date: (r[2] || '').toString().slice(0,10),
+      person: r[3] || '',
+      category: r[4] || '',
+      amount: Number(r[5] || 0),
+      note: r[6] || '',
+      createdAt: r[7] || ''
+    });
+  }
+  // newest first
+  rows.sort((a,b)=> (b.createdAt||'').localeCompare(a.createdAt||''));
+  return rows;
+}
+
+/* ---------------- API ---------------- */
+async function apiGetAll(){
+  const { apiUrl, apiKey } = loadConn();
+  if(!apiUrl || !apiKey) throw new Error("Missing connection");
+  const url = apiUrl + (apiUrl.includes('?')?'&':'?') + 'key=' + encodeURIComponent(apiKey);
+  const res = await fetch(url, { method:'GET' });
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error || "API error");
+  return j.values;
+}
+
+async function apiAdd(tx){
+  const { apiUrl, apiKey } = loadConn();
+  if(!apiUrl || !apiKey) throw new Error("Missing connection");
+  const res = await fetch(apiUrl, {
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body: JSON.stringify({ key: apiKey, tx })
+  });
+  const j = await res.json();
+  if(!j.ok) throw new Error(j.error || "API error");
+  return j.id;
+}
+
+/* ---------------- OFFLINE QUEUE ---------------- */
+async function tryFlushQueue(){
+  const q = loadQueue();
+  if(q.length === 0) return;
+  if(!navigator.onLine) return;
+
+  setSyncState('Syncing queued…');
+  let remaining = [];
+  for(const item of q){
+    try{
+      await apiAdd(item.tx);
+    }catch(e){
+      remaining.push(item);
+    }
+  }
+  saveQueue(remaining);
+  $('qCount').textContent = remaining.length;
+  setSyncState(remaining.length ? 'Queue pending' : 'Synced');
+}
+
+/* ---------------- DASHBOARD LOGIC ---------------- */
+function monthKey(dateStr){
+  if(!dateStr) return '';
+  const d = new Date(dateStr);
+  if(Number.isNaN(d.getTime())) return '';
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0');
+}
+function buildMonthPick(rows){
+  const set = new Set(rows.map(r=>monthKey(r.date)).filter(Boolean));
+  const months = Array.from(set).sort().reverse();
+  const sel = $('monthPick');
+  sel.innerHTML = '';
+  if(months.length===0){
+    const opt=document.createElement('option'); opt.value=''; opt.textContent='No data'; sel.appendChild(opt);
+    return;
+  }
+  months.forEach(m=>{
+    const opt=document.createElement('option');
+    opt.value=m; opt.textContent=m;
+    sel.appendChild(opt);
+  });
+}
+function calcForMonth(rows, m){
+  let income=0, expense=0;
+  const inRows = rows.filter(r=>monthKey(r.date)===m);
+  for(const r of inRows){
+    if(r.type==='income') income += r.amount;
+    if(r.type==='expense' || r.type==='work_spend') expense += r.amount;
+  }
+  return { income, expense, net: income - expense, rows: inRows };
+}
+
+/* ---------------- CHART (simple canvas) ---------------- */
+function drawChart(income, expense){
+  const c = $('chart');
+  const ctx = c.getContext('2d');
+  const w = c.width = c.clientWidth * devicePixelRatio;
+  const h = c.height = c.clientHeight * devicePixelRatio;
+  ctx.clearRect(0,0,w,h);
+
+  // bars
+  const max = Math.max(income, expense, 1);
+  const pad = 30 * devicePixelRatio;
+  const barW = (w - pad*2) / 4;
+  const baseY = h - pad;
+  const topY = pad;
+  const usable = baseY - topY;
+
+  function bar(x, val, color){
+    const bh = (val/max) * usable;
+    ctx.fillStyle = color;
+    ctx.fillRect(x, baseY - bh, barW, bh);
+  }
+  // background lines
+  ctx.strokeStyle = 'rgba(255,255,255,.08)';
+  for(let i=0;i<=4;i++){
+    const y = topY + (usable/4)*i;
+    ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(w-pad, y); ctx.stroke();
+  }
+
+  bar(pad + barW*0.8, income, 'rgba(22,163,74,.85)');
+  bar(pad + barW*2.2, expense, 'rgba(239,68,68,.85)');
+
+  ctx.fillStyle = 'rgba(255,255,255,.8)';
+  ctx.font = `${12*devicePixelRatio}px system-ui`;
+  ctx.fillText('Income', pad + barW*0.8, baseY + 18*devicePixelRatio);
+  ctx.fillText('Expense', pad + barW*2.2, baseY + 18*devicePixelRatio);
+}
+
+/* ---------------- RENDER LISTS ---------------- */
+function dotClass(type){
+  if(type==='income') return 'good';
+  if(type==='expense') return 'bad';
+  if(type==='work_spend') return 'warn';
+  return 'dot';
+}
+function signAmount(type, amt){
+  if(type==='income') return { cls:'good', txt:'+' + money(amt) };
+  if(type==='expense' || type==='work_spend') return { cls:'bad', txt:'-' + money(amt) };
+  return { cls:'', txt: money(amt) };
+}
+function renderRecent(rows){
+  const box = $('recentList');
+  box.innerHTML = '';
+  const show = rows.slice(0,8);
+  if(show.length===0){
+    box.innerHTML = '<p class="muted">No local data yet. Go to Settings → Test → Sync.</p>';
+    return;
+  }
+  for(const r of show){
+    const d = document.createElement('div');
+    d.className = 'item';
+    const s = signAmount(r.type, r.amount);
+    d.innerHTML = `
+      <div class="left">
+        <div class="tag"><span class="dot ${dotClass(r.type)}"></span> ${r.type} • ${r.category} • ${r.person || '—'}</div>
+        <div class="muted">${r.date || ''} ${r.note ? '• '+r.note : ''}</div>
+      </div>
+      <div class="amount ${s.cls}">${s.txt}</div>
+    `;
+    box.appendChild(d);
+  }
+}
+function renderFull(rows){
+  const box = $('fullList');
+  box.innerHTML = '';
+  if(rows.length===0){
+    box.innerHTML = '<p class="muted">No results.</p>';
+    return;
+  }
+  for(const r of rows){
+    const d = document.createElement('div');
+    d.className = 'item';
+    const s = signAmount(r.type, r.amount);
+    d.innerHTML = `
+      <div class="left">
+        <div class="tag"><span class="dot ${dotClass(r.type)}"></span> ${r.type} • ${r.category} • ${r.person || '—'}</div>
+        <div class="muted">${r.date || ''} ${r.note ? '• '+r.note : ''}</div>
+      </div>
+      <div class="amount ${s.cls}">${s.txt}</div>
+    `;
+    box.appendChild(d);
+  }
+}
+
+/* ---------------- MAIN FLOW ---------------- */
+function refreshUI(){
+  const rows = loadCache();
+
+  buildMonthPick(rows);
+  const m = $('monthPick').value || (rows[0] ? monthKey(rows[0].date) : '');
+  if(m) $('monthPick').value = m;
+
+  const calc = m ? calcForMonth(rows, m) : {income:0,expense:0,net:0,rows:[]};
+  $('statIncome').textContent = money(calc.income);
+  $('statExpense').textContent = money(calc.expense);
+  $('statNet').textContent = money(calc.net);
+
+  drawChart(calc.income, calc.expense);
+  renderRecent(rows);
+
+  $('qCount').textContent = loadQueue().length;
+}
+
+async function syncNow(){
+  try{
+    setSyncState('Syncing…');
+    const values = await apiGetAll();
+    const rows = normalizeFromSheet(values);
+    saveCache(rows);
+    setSyncState('Synced');
+    toast('Synced from Google Sheet');
+    refreshUI();
+  }catch(e){
+    setSyncState('Not connected');
+    toast('Sync failed: ' + e.message);
+  }
+}
+
+/* ---------------- EXPORT CSV ---------------- */
+function exportCSV(rows){
+  const headers = ['type','date','person','category','amount','note','createdAt','id'];
+  const lines = [headers.join(',')];
+  for(const r of rows){
+    const line = [
+      r.type, r.date, r.person, r.category, r.amount,
+      (r.note||'').replaceAll('"','""'),
+      r.createdAt, r.id
+    ].map(v => `"${String(v??'')}"`).join(',');
+    lines.push(line);
+  }
+  const blob = new Blob([lines.join('\n')], {type:'text/csv'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'ledgerly_export.csv';
+  a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href), 1200);
+}
+
+/* ---------------- TABS ---------------- */
+function showTab(name){
+  // bottom tabs (3)
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.toggle('active', t.dataset.tab===name);
+  });
+
+  $('view-dashboard').style.display = (name==='dashboard') ? '' : 'none';
+  $('view-add').style.display = (name==='add') ? '' : 'none';
+  $('view-settings').style.display = (name==='settings') ? '' : 'none';
+
+  if(name==='dashboard') refreshUI();
+}
+
+/* ---------------- EVENTS ---------------- */
+document.querySelectorAll('.tab').forEach(t=>{
+  t.addEventListener('click', ()=>showTab(t.dataset.tab));
+});
+
+$('btnSaveConn').addEventListener('click', ()=>{
+  const apiUrl = $('apiUrl').value.trim();
+  const apiKey = $('apiKey').value.trim();
+  saveConn({ apiUrl, apiKey });
+  toast('Saved connection');
+});
+
+$('btnTest').addEventListener('click', async ()=>{
+  try{
+    setSyncState('Testing…');
+    await apiGetAll();
+    setSyncState('Connected');
+    toast('Connection OK');
+  }catch(e){
+    setSyncState('Not connected');
+    toast('Test failed: ' + e.message);
+  }
+});
+
+$('btnSync').addEventListener('click', syncNow);
+$('btnQuickSync').addEventListener('click', syncNow);
+
+$('btnClearLocal').addEventListener('click', ()=>{
+  saveCache([]);
+  saveQueue([]);
+  toast('Local cache cleared');
+  refreshUI();
+});
+
+$('btnAddClear').addEventListener('click', ()=>{
+  $('fPerson').value=''; $('fAmt').value=''; $('fNote').value='';
+  toast('Cleared');
+});
+
+$('btnAdd').addEventListener('click', async ()=>{
+  const tx = {
+    type: $('fType').value,
+    date: $('fDate').value,
+    person: $('fPerson').value.trim(),
+    category: $('fCat').value,
+    amount: Number($('fAmt').value || 0),
+    note: $('fNote').value.trim(),
+  };
+  if(!tx.date){ toast('Pick a date'); return; }
+  if(!tx.amount){ toast('Enter amount'); return; }
+
+  // Save locally first
+  const local = loadCache();
+  const tempId = 'local-' + crypto.randomUUID();
+  local.unshift({ id: tempId, ...tx, createdAt: new Date().toISOString() });
+  saveCache(local);
+  refreshUI();
+  toast('Saved locally');
+
+  // Try send to sheet; if fail => queue
+  try{
+    if(navigator.onLine){
+      await apiAdd(tx);
+      toast('Synced to Google Sheet');
+      await syncNow(); // refresh ids/order
+    }else{
+      throw new Error('Offline');
+    }
+  }catch(e){
+    const q = loadQueue();
+    q.push({ tx, at: Date.now() });
+    saveQueue(q);
+    $('qCount').textContent = q.length;
+    toast('Queued (will sync later)');
+  }
+
+  // clear inputs for next entry
+  $('fAmt').value=''; $('fNote').value='';
+});
+
+$('btnApply').addEventListener('click', ()=>{
+  const rows = loadCache();
+  const from = $('fltFrom').value;
+  const to = $('fltTo').value;
+  const type = $('fltType').value;
+  const cat = $('fltCat').value;
+
+  const out = rows.filter(r=>{
+    if(from && r.date < from) return false;
+    if(to && r.date > to) return false;
+    if(type && r.type !== type) return false;
+    if(cat && r.category !== cat) return false;
+    return true;
+  });
+  renderFull(out);
+});
+
+$('btnExport').addEventListener('click', ()=>{
+  const rows = loadCache();
+  exportCSV(rows);
+});
+
+/* ---------------- INIT ---------------- */
+(function init(){
+  const c = loadConn();
+  $('apiUrl').value = c.apiUrl || '';
+  $('apiKey').value = c.apiKey || '';
+
+  // default date today
+  const d = new Date();
+  const today = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+  $('fDate').value = today;
+
+  // online/offline listeners
+  window.addEventListener('online', async ()=>{ toast('Online'); await tryFlushQueue(); await syncNow(); });
+  window.addEventListener('offline', ()=>toast('Offline'));
+
+  refreshUI();
+  tryFlushQueue();
+})();
+</script>
 </body>
 </html>
