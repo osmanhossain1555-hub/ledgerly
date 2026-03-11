@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Finance X</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <h1>Finance X</h1>
+      <nav>
+        <a class="active" href="#">Dashboard</a>
+        <a href="#">Transactions</a>
+        <a href="#">Budgets</a>
+        <a href="#">Goals</a>
+        <a href="#">Reports</a>
+        <a href="#">Settings</a>
+      </nav>
+      <button class="cta">+ Add transaction</button>
+    </aside>
+
+    <main class="content">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Good afternoon</p>
+          <h2>Your Financial Snapshot</h2>
+        </div>
+        <div class="profile-pill">March 2026 ▾</div>
+      </header>
+
+      <section class="card-grid">
+        <article class="metric-card">
+          <p>Total Balance</p>
+          <h3>$0.00</h3>
+          <span class="up">Ready to track</span>
+        </article>
+        <article class="metric-card">
+          <p>Monthly Income</p>
+          <h3>$0.00</h3>
+          <span class="up">Starts at zero</span>
+        </article>
+        <article class="metric-card">
+          <p>Monthly Expenses</p>
+          <h3>$0.00</h3>
+          <span class="down">No spending yet</span>
+        </article>
+        <article class="metric-card">
+          <p>Savings Rate</p>
+          <h3>0%</h3>
+          <span class="up">Add income first</span>
+        </article>
+      </section>
+
+      <section class="panel-grid">
+        <article class="panel chart-panel">
+          <div class="panel-head">
+            <h4>Cash Flow</h4>
+            <a href="#">View details</a>
+          </div>
+          <div class="fake-chart" aria-hidden="true"></div>
+        </article>
+
+        <article class="panel budget-panel">
+          <div class="panel-head">
+            <h4>Budget Progress</h4>
+          </div>
+          <ul>
+            <li><span>Housing</span><progress value="0" max="100"></progress><strong>$0 / $2,000</strong></li>
+            <li><span>Food</span><progress value="0" max="100"></progress><strong>$0 / $1,000</strong></li>
+            <li><span>Transport</span><progress value="0" max="100"></progress><strong>$0 / $500</strong></li>
+            <li><span>Entertainment</span><progress value="0" max="100"></progress><strong>$0 / $500</strong></li>
+          </ul>
+        </article>
+      </section>
+
+      <section class="panel transactions-panel">
+        <div class="panel-head">
+          <h4>Recent Transactions</h4>
+          <a href="#">See all</a>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Merchant</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Amount</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </section>
+    </main>
+  </div>
+
+  <div class="modal" id="transactionModal" aria-hidden="true">
+    <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <div class="modal-head">
+        <h3 id="modalTitle">Add Transaction</h3>
+        <button class="icon-btn" id="closeBtn" aria-label="Close">✕</button>
+      </div>
+
+      <label class="field">
+        <span>Merchant</span>
+        <input type="text" id="merchant" placeholder="e.g., Carrefour" autocomplete="off" />
+      </label>
+
+      <label class="field">
+        <span>Category</span>
+        <input type="text" id="category" placeholder="e.g., Groceries" autocomplete="off" />
+      </label>
+
+      <label class="field">
+        <span>Amount</span>
+        <input type="number" id="amount" placeholder="Use negative for expense (e.g., -25)" inputmode="decimal" />
+        <small class="hint">Tip: expenses negative, income positive</small>
+      </label>
+
+      <div class="modal-actions">
+        <button class="btn ghost" id="cancelBtn" type="button">Cancel</button>
+        <button class="btn primary" id="saveBtn" type="button">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
