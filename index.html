@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#4a49d7" />
+  <title>Peeduiteun Budget</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <button class="icon-btn ghost" id="menuBtn" aria-label="Menu">☰</button>
+      <div class="brand-wrap">
+        <div class="brand-title">Peeduiteun</div>
+        <div class="brand-subtitle" id="monthLabel"></div>
+      </div>
+      <button class="icon-btn notification" id="notifyBtn" aria-label="Notifications">
+        <span class="bell"></span>
+        <span class="dot"></span>
+      </button>
+    </header>
+
+    <main class="screen-area">
+      <section class="screen active" data-screen="home">
+        <div class="hero-card">
+          <div class="hero-value" id="totalSpentLabel">$0</div>
+          <div class="hero-caption" id="spendRatioLabel">You spent 0% income</div>
+        </div>
+
+        <div class="summary-grid">
+          <article class="mini-card">
+            <div class="mini-icon blue">✓</div>
+            <div>
+              <div class="mini-label">Net Income</div>
+              <div class="mini-value" id="netIncomeLabel">$0</div>
+            </div>
+          </article>
+          <article class="mini-card">
+            <div class="mini-icon cyan">↗</div>
+            <div>
+              <div class="mini-label">Expenditure</div>
+              <div class="mini-value" id="expenseLabel">$0</div>
+            </div>
+          </article>
+        </div>
+
+        <article class="chart-card">
+          <div class="chart-legend">
+            <span><i class="legend-dot indigo"></i>Net income</span>
+            <span><i class="legend-dot sky"></i>Expenditure</span>
+          </div>
+          <canvas id="trendChart" width="360" height="190" aria-label="Monthly trend chart"></canvas>
+          <div class="chart-dates">
+            <span id="chartStartLabel">Jan 1</span>
+            <span id="chartMidLabel">Jan 15</span>
+            <span id="chartEndLabel">Jan 30</span>
+          </div>
+        </article>
+
+        <section class="section-head">
+          <h2>Expenditure</h2>
+          <button class="text-btn" id="openModalFromHome">Add</button>
+        </section>
+        <div class="list" id="recentExpenseList"></div>
+      </section>
+
+      <section class="screen" data-screen="budget">
+        <div class="budget-topline">
+          <button class="icon-btn plus" id="openModalFromBudget" aria-label="Add transaction">+</button>
+          <div class="page-title">Budgeting</div>
+          <button class="icon-btn ghost" id="moreBtn" aria-label="More">⋯</button>
+        </div>
+
+        <article class="donut-card">
+          <div class="donut-wrap">
+            <div class="donut" id="budgetDonut">
+              <div class="donut-center">
+                <div class="donut-number" id="budgetUsageLabel">0%</div>
+              </div>
+            </div>
+          </div>
+          <div class="legend-list" id="budgetLegend"></div>
+        </article>
+
+        <article class="advisor-card">
+          <div class="advisor-icon">🤖</div>
+          <div class="advisor-copy">
+            <div class="advisor-title">Invest Roboassist</div>
+            <div class="advisor-text" id="advisorText">Virtual budgeting assistant.</div>
+          </div>
+          <button class="pill-btn" id="advisorAction">Open</button>
+        </article>
+
+        <section class="section-head">
+          <h2>Expenditure</h2>
+          <button class="text-btn" id="budgetResetBtn">Reset demo</button>
+        </section>
+        <div class="category-progress-list" id="categoryProgressList"></div>
+      </section>
+
+      <section class="screen" data-screen="plan">
+        <div class="plan-header">
+          <button class="icon-btn ghost" id="backToBudgetBtn" aria-label="Back">←</button>
+          <div class="page-title">Set Budget</div>
+          <div class="plan-spacer"></div>
+        </div>
+
+        <article class="plan-card">
+          <div class="selected-icon" id="selectedCategoryIcon"></div>
+          <div class="selected-name-row">
+            <div class="selected-name" id="selectedCategoryName">Internet Bills</div>
+            <button class="icon-btn edit" id="editBudgetNameBtn" aria-label="Edit budget amount">✎</button>
+          </div>
+          <div class="budget-input-wrap">
+            <label for="budgetAmountInput">Monthly budget amount</label>
+            <input type="number" id="budgetAmountInput" min="0" step="0.01" placeholder="Enter budget amount" />
+          </div>
+          <button class="primary-btn" id="saveBudgetBtn">Save Budget</button>
+        </article>
+
+        <div class="category-grid" id="categoryGrid"></div>
+      </section>
+
+      <section class="screen" data-screen="settings">
+        <div class="page-title settings-title">Settings</div>
+
+        <article class="settings-card">
+          <label class="field-label" for="incomeInput">Monthly income</label>
+          <input type="number" id="incomeInput" min="0" step="0.01" placeholder="3200" />
+          <button class="primary-btn compact" id="saveIncomeBtn">Save income</button>
+        </article>
+
+        <article class="settings-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-head">Install app</div>
+              <div class="settings-note">Works when supported by your browser.</div>
+            </div>
+            <button class="pill-btn" id="installBtn" disabled>Install</button>
+          </div>
+        </article>
+
+        <article class="settings-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-head">Export data</div>
+              <div class="settings-note">Download your budgets and transactions as JSON.</div>
+            </div>
+            <button class="pill-btn" id="exportBtn">Export</button>
+          </div>
+          <div class="settings-row">
+            <div>
+              <div class="settings-head">Import data</div>
+              <div class="settings-note">Restore from a previously exported file.</div>
+            </div>
+            <label class="pill-btn secondary file-label">
+              Import
+              <input type="file" id="importInput" accept="application/json" hidden />
+            </label>
+          </div>
+        </article>
+
+        <article class="settings-card">
+          <div class="settings-row">
+            <div>
+              <div class="settings-head">Notifications</div>
+              <div class="settings-note">Daily reminder when you overspend a category.</div>
+            </div>
+            <button class="pill-btn secondary" id="notifyPermissionBtn">Enable</button>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <nav class="tabbar" aria-label="Bottom navigation">
+      <button class="tab active" data-target="home" aria-label="Home">
+        <span class="tab-icon">▣</span>
+      </button>
+      <button class="tab" data-target="budget" aria-label="Budgeting">
+        <span class="tab-icon">◐</span>
+      </button>
+      <button class="tab" data-target="plan" aria-label="Set budget">
+        <span class="tab-icon">▭</span>
+      </button>
+      <button class="tab" data-target="settings" aria-label="Settings">
+        <span class="tab-icon">◌</span>
+      </button>
+    </nav>
+  </div>
+
+  <section class="modal hidden" id="transactionModal" aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal="true"></div>
+    <div class="modal-card">
+      <div class="modal-head">
+        <h3 id="modalTitle">Add Transaction</h3>
+        <button class="icon-btn ghost" id="closeModalBtn" aria-label="Close">✕</button>
+      </div>
+      <form id="transactionForm">
+        <input type="hidden" id="transactionId" />
+        <label class="field-label" for="transactionTitle">Title</label>
+        <input type="text" id="transactionTitle" required placeholder="e.g. Internet bill" />
+
+        <div class="field-grid">
+          <div>
+            <label class="field-label" for="transactionAmount">Amount</label>
+            <input type="number" id="transactionAmount" required min="0" step="0.01" placeholder="0.00" />
+          </div>
+          <div>
+            <label class="field-label" for="transactionType">Type</label>
+            <select id="transactionType">
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="field-label" for="transactionCategory">Category</label>
+        <select id="transactionCategory"></select>
+
+        <label class="field-label" for="transactionDate">Date</label>
+        <input type="date" id="transactionDate" required />
+
+        <label class="field-label" for="transactionNote">Note</label>
+        <textarea id="transactionNote" rows="3" placeholder="Optional note"></textarea>
+
+        <div class="modal-actions">
+          <button class="pill-btn secondary" type="button" id="deleteTransactionBtn">Delete</button>
+          <button class="primary-btn compact" type="submit">Save Transaction</button>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <script src="script.js"></script>
+</body>
+</html>
